@@ -344,10 +344,7 @@ export function WorksWheel({
   return (
     <section
       aria-label={label}
-      className={cn(
-        "bg-background text-foreground relative h-full min-h-[24rem] w-full overflow-hidden select-none",
-        className,
-      )}
+      className={`bg-background text-foreground relative h-full min-h-[24rem] w-full overflow-hidden select-none ${className ?? ""}`}
       {...props}
     >
       <div
@@ -608,17 +605,14 @@ export function WorksWheel({
             <button
               type="button"
               onClick={() => to(i + 1)}
-              className={cn(
-                `
-                  focus-visible:outline-foreground
-                  cursor-pointer
-                  transition-colors
-                  outline-none
-                  focus-visible:outline-1
-                `,
-                i === active &&
-                  "text-foreground font-medium",
-              )}
+              className={`
+  focus-visible:outline-foreground
+  cursor-pointer
+  transition-colors
+  outline-none
+  focus-visible:outline-1
+  ${i === active ? "text-foreground font-medium" : ""}
+`}
             >
               {item.title}
             </button>
