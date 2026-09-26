@@ -14,11 +14,11 @@ export default function Home() {
           GLYPH PORTAL — LANDING SCREEN
       ========================================================= */}
       <GlyphPortal
-        word="Hey Dany!"
+        word="Hey Parthzzz!"
         scrollLength={2.4}
         interactive={false}
         annotations={false}
-        enterLabel="Explore"
+        enterLabel=""
         background={
           <div
             style={{
@@ -65,7 +65,7 @@ export default function Home() {
                   lineHeight: 1,
                 }}
               >
-                Dany.
+                Stay Focused!
               </span>
 
               {/* Category */}
@@ -77,7 +77,7 @@ export default function Home() {
                   lineHeight: 1.5,
                 }}
               >
-                Developer & AI experiences
+                Stay Alive!!
               </span>
             </div>
 
@@ -99,7 +99,7 @@ export default function Home() {
                 letterSpacing: "0.005em",
               }}
             >
-              A different perspective starts here.
+              Symbiote: because apparently one personality wasn’t enough..
             </p>
 
             {/* =====================================================
@@ -119,7 +119,7 @@ export default function Home() {
                 lineHeight: 1.5,
               }}
             >
-              Follow your curiosity.
+            
             </p>
 
             {/* =====================================================
@@ -162,7 +162,7 @@ export default function Home() {
                 letterSpacing: "0.2em",
               }}
             >
-              Hello, I'm Dany
+              Hello, I'm Parthzzz.
             </p>
 
             <h1

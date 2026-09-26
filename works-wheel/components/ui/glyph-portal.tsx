@@ -165,7 +165,7 @@ function scrollParent(
 }
 
 export default function GlyphPortal({
-  word = "Hey Dany!",
+  word = "Hey Parthzzz!",
   focusChar,
   interactive = true,
   background,
@@ -196,7 +196,7 @@ export default function GlyphPortal({
   }, [onProgress]);
 
   const text =
-    word.trim().normalize("NFC") || "Hey Dany!";
+    word.trim().normalize("NFC") || "Hey Parthzz!";
 
   let characterOffset = 0;
 
