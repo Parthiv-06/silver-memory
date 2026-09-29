@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import GlyphPortal from "@/components/ui/glyph-portal";
 
 const settings = { word: "SUBLIME", scrollLength: 2.4, interactive: true, annotations: false };
@@ -40,16 +40,19 @@ export default function Demo(props: Partial<typeof settings>) {
         @media(any-pointer:coarse){[data-sublime-scroll]{bottom:13%;}}
         @container(max-width:450px){[data-sublime-category]{max-width:12ch;text-align:right;}[data-sublime-eyebrow]{font-size:12px;}[data-sublime-support]{font-size:14px;}[data-slipstream-demo] [data-gp-caption]{top:calc(var(--gp-word-bottom,50%) + 76px);}}
         @container(max-height:479px){[data-sublime-header]{top:18px;}[data-sublime-support]{top:calc(var(--gp-word-bottom,50%) + 16px);}[data-slipstream-demo] [data-gp-caption]{top:calc(var(--gp-word-bottom,50%) + 60px);}[data-sublime-scroll]{display:none;}}
-        [data-slipstream-demo] [data-gp-content]{padding:5.5rem clamp(1.25rem,5cqw,5rem) 6.5rem;font-family:inherit;}
+        [data-slipstream-demo] [data-gp-content]{padding:5.5rem clamp(1.25rem,5cqw,5rem) 6.5rem;font-family:inherit;color:#14573f;background:#fff!important;place-items:center;}
         [data-slipstream-demo] section,[data-slipstream-demo] [data-gp-caption]{font-family:inherit;}
-        [data-slipstream-copy]{display:flex;width:min(100%,80rem);margin:auto;flex-direction:column;align-items:flex-start;gap:clamp(2rem,5svh,3.5rem);}
-        [data-slipstream-copy] h2{max-width:48rem;margin:0;color:inherit;font-size:clamp(1.75rem,1.1rem + 2.1cqw,2.25rem);font-weight:400;line-height:1.25;letter-spacing:0;text-wrap:balance;}
-        [data-slipstream-features]{display:grid;width:100%;grid-template-columns:1fr;gap:1.75rem;}
-        [data-slipstream-feature]{border-top:1px solid rgba(251,251,250,.22);padding-top:1.1rem;}
-        [data-slipstream-feature] h3{margin:0;color:inherit;font-size:1.125rem;font-weight:500;line-height:1.2;letter-spacing:0;}
-        [data-slipstream-feature] p{margin:.55rem 0 0;color:rgba(251,251,250,.85);font-size:.9375rem;line-height:1.55;}
-        [data-slipstream-no]{display:inline-block;margin-right:.7rem;color:rgba(251,251,250,.85);font:500 .75rem ui-monospace,monospace;letter-spacing:.08em;transform:translateY(-.1em);}
-        @container(min-width:768px){[data-slipstream-features]{grid-template-columns:repeat(3,minmax(0,1fr));gap:3.5rem;}}
+        [data-code-form]{display:flex;width:min(100%,360px);flex-direction:column;gap:10px;}
+        [data-code-form] label{font-size:14px;font-weight:600;color:#14573f;}
+        [data-code-field]{position:relative;display:flex;align-items:center;}
+        [data-code-field] input{box-sizing:border-box;width:100%;height:48px;padding:0 52px 0 16px;border:1.5px solid #14573f;border-radius:10px;background:#fff;color:#0b3b2a;font-family:inherit;font-size:15px;font-weight:500;}
+        [data-code-field] input::placeholder{color:#5f7a6d;}
+        [data-code-field] input:focus{outline:none;box-shadow:0 0 0 3px rgba(20,87,63,.18);}
+        [data-code-eye]{position:absolute;right:2px;display:flex;width:44px;height:44px;align-items:center;justify-content:center;border:0;border-radius:8px;padding:0;background:transparent;color:#14573f;cursor:pointer;}
+        [data-code-eye]:focus-visible{outline:2px solid #14573f;outline-offset:2px;}
+        [data-code-verify]{margin-top:14px;height:48px;border:1px solid #10261d;border-radius:10px;background:#14573f;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s;}
+        [data-code-verify]:hover{background:#0b3b2a;}
+        [data-code-verify]:focus-visible{outline:2px solid #14573f;outline-offset:3px;}
       `}</style>
       {face ? <GlyphPortal word={s.word} fontFamily={face} fontWeight={700} style={{ fontFamily: face }} scrollLength={s.scrollLength} interactive={s.interactive} annotations={s.annotations} enterLabel="Step inside" front={<>
           <div data-sublime-header><span data-sublime-logo>sublime.</span><span data-sublime-category>Design & digital experiences</span></div>
@@ -57,15 +60,30 @@ export default function Demo(props: Partial<typeof settings>) {
           <p data-sublime-support>Follow your curiosity.</p>
           <span data-sublime-scroll>Scroll for a closer look ↓</span>
         </>}>
-        <div data-slipstream-copy>
-          <h2>A different way into what comes next.</h2>
-          <div data-slipstream-features>
-            <div data-slipstream-feature><h3><span data-slipstream-no>01</span>Choose your way in</h3><p>Pick any letter, then scroll. Each path takes you into the same green.</p></div>
-            <div data-slipstream-feature><h3><span data-slipstream-no>02</span>Set the scene</h3><p>A gradient, photograph, video or canvas can sit behind the word.</p></div>
-            <div data-slipstream-feature><h3><span data-slipstream-no>03</span>Keep going</h3><p>The next section is yours. Add a story, a project, or a reason to stay.</p></div>
-          </div>
-        </div>
+        <CodeWordForm />
       </GlyphPortal> : <div role="status" style={{ height: "100%", display: "grid", placeItems: "center", color: "#555", fontSize: 12 }}>Loading type…</div>}
     </div>
+  );
+}
+
+function CodeWordForm() {
+  const [shown, setShown] = useState(false);
+  // Verification is not wired up yet; keep the page from reloading on submit.
+  const submit = (event: FormEvent<HTMLFormElement>) => event.preventDefault();
+  return (
+    <form data-code-form onSubmit={submit}>
+      <label htmlFor="code-word">Code word</label>
+      <div data-code-field>
+        <input id="code-word" name="code-word" type={shown ? "text" : "password"} placeholder="Enter code word boss" autoComplete="current-password" />
+        <button type="button" data-code-eye onClick={() => setShown(!shown)} aria-label={shown ? "Hide code word" : "Show code word"} aria-pressed={shown}>
+          {shown ? (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
+          ) : (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>
+          )}
+        </button>
+      </div>
+      <button type="submit" data-code-verify>Verify</button>
+    </form>
   );
 }
