@@ -1,7 +1,6 @@
 "use client";
 
 import GlyphPortal from "@/components/ui/glyph-portal";
-import WorksWheel from "@/components/ui/works-wheel";
 
 const GREEN = "#1F5B43";
 const DARK_GREEN = "#263F35";
@@ -162,7 +161,7 @@ export default function Home() {
                 letterSpacing: "0.2em",
               }}
             >
-              Hello, I'm Parthzzz.
+              Hello, I&apos;m Parthzzz.
             </p>
 
             <h1
@@ -192,68 +191,9 @@ export default function Home() {
               experiments and work across software, artificial
               intelligence and engineering.
             </p>
-
-            <div className="mt-10">
-              <a
-                href="#projects"
-                className="inline-flex items-center gap-7 rounded-[10px] px-6 py-3.5 transition-all duration-200"
-                style={{
-                  background: DARK_GREEN,
-                  color: "#FFFFFF",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  boxShadow: "0 2px 6px rgba(20,43,34,0.12)",
-                }}
-              >
-                View my work
-                <span
-                  aria-hidden="true"
-                  style={{
-                    fontSize: "18px",
-                    lineHeight: 1,
-                  }}
-                >
-                  ↘
-                </span>
-              </a>
-            </div>
           </section>
         </div>
       </GlyphPortal>
-
-      {/* =========================================================
-          PROJECTS / WORKS WHEEL
-      ========================================================= */}
-      <section
-        id="projects"
-        className="min-h-screen bg-black"
-      >
-        <WorksWheel
-          label="My Projects"
-          items={[
-            {
-              title: "CBM Platform",
-              image: "/images/cbm.jpg",
-              href: "#cbm-platform",
-            },
-            {
-              title: "AI Assistant",
-              image: "/images/ai-assistant.jpg",
-              href: "#ai-assistant",
-            },
-            {
-              title: "House Price Prediction",
-              image: "/images/house-price.jpg",
-              href: "#house-price",
-            },
-            {
-              title: "E-Commerce Platform",
-              image: "/images/ecommerce.jpg",
-              href: "#ecommerce",
-            },
-          ]}
-        />
-      </section>
     </main>
   );
 }
