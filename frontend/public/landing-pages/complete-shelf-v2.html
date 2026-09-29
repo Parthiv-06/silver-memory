@@ -1620,15 +1620,15 @@
 
     <div class="pointer-label" id="pointer-label" aria-hidden="true">
       <span id="pointer-label-index">Volume 01</span>
-      <strong id="pointer-label-title">Codex</strong>
+      <strong id="pointer-label-title">Files</strong>
     </div>
 
     <section class="browse-ui" id="browse-ui" aria-label="Shelf navigation">
       <div class="selection">
         <span class="counter" id="counter">01 / 07</span>
         <div class="selection__copy">
-          <h1 class="selection__title" id="selection-title">Codex</h1>
-          <p class="selection__note" id="selection-note">Precise intent, translated into tested systems.</p>
+          <h1 class="selection__title" id="selection-title">Files</h1>
+          <p class="selection__note" id="selection-note">Documents and uploads, kept in one place.</p>
         </div>
       </div>
 
@@ -1661,7 +1661,7 @@
         <svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 4 8 8M12 4l-8 8"></path></svg>
       </button>
       <p class="eyebrow" id="detail-eyebrow">Volume I · Agentic craft</p>
-      <h2 class="detail-title" id="detail-title">Codex</h2>
+      <h2 class="detail-title" id="detail-title">Files</h2>
       <p class="detail-deck" id="detail-deck">
         A field manual for turning clear intent into working software, with verification treated as part of the craft.
       </p>
@@ -1710,20 +1710,20 @@
       <div class="fallback__header">
         <div>
           <p class="fallback__kicker">Working Volumes · Static catalog</p>
-          <h2 id="fallback-title">Seven tools for making.</h2>
+          <h2 id="fallback-title">Seven sections.</h2>
         </div>
         <p class="fallback__status" id="fallback-status">
           The complete catalog remains readable while the interactive shelf is prepared.
         </p>
       </div>
       <div class="fallback__grid" aria-label="Seven conceptual hardcovers">
-        <article class="fallback-book" style="--book-color:#182a43;--book-foil:#c87046;--book-height:390px"><span>Volume I</span><strong>Codex</strong></article>
-        <article class="fallback-book" style="--book-color:#c24d24;--book-foil:#efc16d;--book-height:356px"><span>Volume II</span><strong>Claude Code</strong></article>
-        <article class="fallback-book" style="--book-color:#afc400;--book-foil:#171a16;--book-height:374px"><span>Volume III</span><strong>Cursor</strong></article>
-        <article class="fallback-book" style="--book-color:#1537a1;--book-foil:#dbe8f1;--book-height:404px"><span>Volume IV</span><strong>Antigravity</strong></article>
-        <article class="fallback-book" style="--book-color:#c83222;--book-foil:#efb0aa;--book-height:365px"><span>Volume V</span><strong>Figma</strong></article>
-        <article class="fallback-book" style="--book-color:#da3b2f;--book-foil:#ff8eab;--book-height:385px"><span>Volume VI</span><strong>Framer</strong></article>
-        <article class="fallback-book" style="--book-color:#78a7bd;--book-foil:#e4e7e5;--book-height:398px"><span>Volume VII</span><strong>Xcode</strong></article>
+        <article class="fallback-book" style="--book-color:#182a43;--book-foil:#c87046;--book-height:390px"><span>Volume I</span><strong>Files</strong></article>
+        <article class="fallback-book" style="--book-color:#c24d24;--book-foil:#efc16d;--book-height:356px"><span>Volume II</span><strong>Pay Log</strong></article>
+        <article class="fallback-book" style="--book-color:#afc400;--book-foil:#171a16;--book-height:374px"><span>Volume III</span><strong>Todos</strong></article>
+        <article class="fallback-book" style="--book-color:#1537a1;--book-foil:#dbe8f1;--book-height:404px"><span>Volume IV</span><strong>Projects</strong></article>
+        <article class="fallback-book" style="--book-color:#c83222;--book-foil:#efb0aa;--book-height:365px"><span>Volume V</span><strong>Notes</strong></article>
+        <article class="fallback-book" style="--book-color:#da3b2f;--book-foil:#ff8eab;--book-height:385px"><span>Volume VI</span><strong>Bookmarks</strong></article>
+        <article class="fallback-book" style="--book-color:#78a7bd;--book-foil:#e4e7e5;--book-height:398px"><span>Volume VII</span><strong>My Vault</strong></article>
       </div>
       <div class="fallback__footer">
         <span>All bindings, motifs, descriptions, geometry, and cover artworks are original to this conceptual study.</span>
@@ -1749,14 +1749,15 @@
     const BOOKS = [
       {
         id: "codex",
-        title: "Codex",
+        title: "Files",
+        route: "/files",
         roman: "I",
-        discipline: "Agentic craft",
-        note: "Precise intent, translated into tested systems.",
-        deck: "A field manual for delegating repository work to Codex: state the intent, let the agent trace the system, and treat tests and browser proof as part of the craft.",
+        discipline: "Documents",
+        note: "Documents and uploads, kept in one place.",
+        deck: "Documents and uploads, kept in one place.",
         binding: "Ultramarine cloth · copper foil",
         format: "148 × 216 mm · imagined edition",
-        theme: "Codex · intent into implementation",
+        theme: "Files · documents",
         motif: "Nested brackets",
         motifKey: "brackets",
         paletteLabel: "Ultramarine · bone · copper",
@@ -1782,14 +1783,15 @@
       },
       {
         id: "claude-code",
-        title: "Claude Code",
+        title: "Pay Log",
+        route: "/pay-log",
         roman: "II",
-        discipline: "Contextual reasoning",
-        note: "Long context, held with deliberation and care.",
-        deck: "An annotated volume on Claude Code’s context-first practice: read the project, reason across files, preserve the surrounding work, and make every intervention explainable.",
+        discipline: "Finance",
+        note: "Payments in and out, logged as they happen.",
+        deck: "Payments in and out, logged as they happen.",
         binding: "Burnt-orange cloth · antique-gold foil",
         format: "156 × 228 mm · imagined edition",
-        theme: "Claude Code · context before intervention",
+        theme: "Pay Log · finance",
         motif: "Interlaced paths",
         motifKey: "paths",
         paletteLabel: "Burnt orange · cream · burgundy",
@@ -1815,14 +1817,15 @@
       },
       {
         id: "cursor",
-        title: "Cursor",
+        title: "Todos",
+        route: "/todos",
         roman: "III",
-        discipline: "Directed editing",
-        note: "A fast line between the thought and the file.",
-        deck: "A compact handbook for editing with Cursor: navigate living codebases quickly, keep the active context close, and change the right surface without disturbing the rest.",
+        discipline: "Tasks",
+        note: "What is next, and what is done.",
+        deck: "What is next, and what is done.",
         binding: "Citron cloth · black gloss foil",
         format: "140 × 210 mm · imagined edition",
-        theme: "Cursor · navigation with momentum",
+        theme: "Todos · tasks",
         motif: "Directional caret",
         motifKey: "caret",
         paletteLabel: "Citron · ink · off-white",
@@ -1848,14 +1851,15 @@
       },
       {
         id: "antigravity",
-        title: "Antigravity",
+        title: "Projects",
+        route: "/projects",
         roman: "IV",
-        discipline: "Spatial systems",
-        note: "Ideas released from the flatness of the page.",
-        deck: "A speculative atlas for Antigravity’s spatial way of working: let agents move across tools, make complex structures visible, and understand the system through motion.",
+        discipline: "Work",
+        note: "Work in progress, from idea to shipped.",
+        deck: "Work in progress, from idea to shipped.",
         binding: "Cobalt cloth · cool-silver foil",
         format: "162 × 240 mm · imagined edition",
-        theme: "Antigravity · structure in motion",
+        theme: "Projects · work",
         motif: "Suspended orbits",
         motifKey: "orbits",
         paletteLabel: "Cobalt · sky · silver",
@@ -1881,14 +1885,15 @@
       },
       {
         id: "figma",
-        title: "Figma",
+        title: "Notes",
+        route: "/notes",
         roman: "V",
-        discipline: "Collaborative form",
-        note: "Components, conversations, and systems in common.",
-        deck: "A modular reader on designing in Figma: move from loose frames to shared components, invite critique into the canvas, and leave behind a system others can extend.",
+        discipline: "Writing",
+        note: "Thoughts worth writing down.",
+        deck: "Thoughts worth writing down.",
         binding: "Vermilion cloth · rose-gold foil",
         format: "150 × 220 mm · imagined edition",
-        theme: "Figma · a shared visual language",
+        theme: "Notes · writing",
         motif: "Connected modules",
         motifKey: "modules",
         paletteLabel: "Vermilion · plum · blush",
@@ -1914,14 +1919,15 @@
       },
       {
         id: "framer",
-        title: "Framer",
+        title: "Bookmarks",
+        route: "/bookmarks",
         roman: "VI",
-        discipline: "Interactive composition",
-        note: "Structure becomes rhythm when the page begins to move.",
-        deck: "A studio notebook for Framer: compose responsive pages directly in the medium, then tune type, layout, and interaction until motion feels native to the structure.",
+        discipline: "Reading list",
+        note: "Links saved for later.",
+        deck: "Links saved for later.",
         binding: "Coral cloth · copper foil",
         format: "146 × 224 mm · imagined edition",
-        theme: "Framer · composition through motion",
+        theme: "Bookmarks · reading list",
         motif: "Folded frames",
         motifKey: "frames",
         paletteLabel: "Coral · pink · oxblood",
@@ -1947,14 +1953,15 @@
       },
       {
         id: "xcode",
-        title: "Xcode",
+        title: "My Vault",
+        route: "/vault",
         roman: "VII",
-        discipline: "Native making",
-        note: "A measured path from blueprint to living device.",
-        deck: "A technical folio for making with Xcode: shape the Swift interface, compile against the platform, inspect the runtime, and refine until the result feels native.",
+        discipline: "Private",
+        note: "Private things, kept locked away.",
+        deck: "Private things, kept locked away.",
         binding: "Icy-cyan cloth · aluminum foil",
         format: "158 × 232 mm · imagined edition",
-        theme: "Xcode · blueprint into native form",
+        theme: "My Vault · private",
         motif: "Drafting compass",
         motifKey: "compass",
         paletteLabel: "Icy cyan · navy · aluminum",
@@ -5207,6 +5214,12 @@
 
     function openDetail(origin = inspectButton) {
       if (mode !== "hero") return;
+      // Inside the app, a book opens its section page instead of the reading view.
+      const route = BOOKS[selectedIndex].route;
+      if (route && window.parent !== window) {
+        window.parent.postMessage({ type: "shelf:open", route }, window.location.origin);
+        return;
+      }
       mode = "opening";
       transitionTime = 0;
       readingOpen = false;
