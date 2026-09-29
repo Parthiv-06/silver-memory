@@ -16,7 +16,7 @@ Your git repo (`silver-memory`) has **two projects side by side**:
 ```
 silver-memory/
 ├── backend/        ← what this guide deploys
-└── works-wheel/     ← the Next.js frontend (deployed separately, e.g. Vercel)
+└── frontend/        ← the Next.js frontend (deployed separately, e.g. Vercel)
 ```
 
 This matters because Railway, by default, builds from the **repo root**. Since
@@ -229,7 +229,7 @@ once, ever (re-running it later is a safe no-op as long as the row exists).
 
 ## 7. Point the frontend at the deployed backend
 
-In `works-wheel/`, whatever code calls this API needs its base URL to point
+In `frontend/`, whatever code calls this API needs its base URL to point
 at Railway instead of `localhost:8000`. Set this as an environment variable
 in whatever platform hosts the frontend (e.g. Vercel → Project Settings →
 Environment Variables):

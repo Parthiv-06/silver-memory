@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Works Wheel",
-  description: "Interactive 3D portfolio wheel",
+  title: "Sublime",
+  description: "A scroll-driven passage through type.",
 };
 
 export default function RootLayout({
