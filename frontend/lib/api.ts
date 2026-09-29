@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://frontend-teal-tau-18.vercel.app/";
 const TOKEN_KEY = "sm_token";
 
 function readToken(): string | null {
