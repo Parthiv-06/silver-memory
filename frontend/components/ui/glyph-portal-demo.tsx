@@ -2,12 +2,13 @@
 
 import { useEffect, useState, type FormEvent } from "react";
 import GlyphPortal from "@/components/ui/glyph-portal";
+import { verifyCodeWord } from "@/lib/api";
 
 const settings = { word: "SUBLIME", scrollLength: 2.4, interactive: true, annotations: false };
 const family = '"Glyph Portal Jakarta", Arial, sans-serif';
 let fontLoad: Promise<void> | undefined;
 
-export default function Demo(props: Partial<typeof settings>) {
+export default function Demo({ onVerified, ...props }: Partial<typeof settings> & { onVerified?: () => void }) {
   const s = { ...settings, ...props };
   const [face, setFace] = useState<string | null>(null);
   useEffect(() => {
@@ -52,6 +53,8 @@ export default function Demo(props: Partial<typeof settings>) {
         [data-code-eye]:focus-visible{outline:2px solid #14573f;outline-offset:2px;}
         [data-code-verify]{margin-top:14px;height:48px;border:1px solid #10261d;border-radius:10px;background:#14573f;color:#fff;font-family:inherit;font-size:15px;font-weight:600;cursor:pointer;transition:background .18s;}
         [data-code-verify]:hover{background:#0b3b2a;}
+        [data-code-verify]:disabled{opacity:.7;cursor:progress;}
+        [data-code-error]{margin:2px 0 0;font-size:13px;color:#a3301f;}
         [data-code-verify]:focus-visible{outline:2px solid #14573f;outline-offset:3px;}
       `}</style>
       {face ? <GlyphPortal word={s.word} fontFamily={face} fontWeight={700} style={{ fontFamily: face }} scrollLength={s.scrollLength} interactive={s.interactive} annotations={s.annotations} enterLabel="Step inside" front={<>
@@ -60,21 +63,34 @@ export default function Demo(props: Partial<typeof settings>) {
           <p data-sublime-support>Follow your curiosity.</p>
           <span data-sublime-scroll>Scroll for a closer look ↓</span>
         </>}>
-        <CodeWordForm />
+        <CodeWordForm onVerified={onVerified} />
       </GlyphPortal> : <div role="status" style={{ height: "100%", display: "grid", placeItems: "center", color: "#555", fontSize: 12 }}>Loading type…</div>}
     </div>
   );
 }
 
-function CodeWordForm() {
+function CodeWordForm({ onVerified }: { onVerified?: () => void }) {
   const [shown, setShown] = useState(false);
-  // Verification is not wired up yet; keep the page from reloading on submit.
-  const submit = (event: FormEvent<HTMLFormElement>) => event.preventDefault();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const submit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const passkey = String(new FormData(event.currentTarget).get("code-word") ?? "");
+    if (!passkey) { setError("Enter the code word first."); return; }
+    setBusy(true); setError("");
+    try {
+      await verifyCodeWord(passkey);
+      onVerified?.();
+    } catch (err) {
+      setError(err instanceof TypeError ? "Can't reach the server. Try again." : "That's not the code word.");
+      setBusy(false);
+    }
+  };
   return (
-    <form data-code-form onSubmit={submit}>
+    <form data-code-form onSubmit={submit} aria-busy={busy}>
       <label htmlFor="code-word">Code word</label>
       <div data-code-field>
-        <input id="code-word" name="code-word" type={shown ? "text" : "password"} placeholder="Enter code word boss" autoComplete="current-password" />
+        <input id="code-word" name="code-word" aria-invalid={error ? true : undefined} aria-describedby={error ? "code-word-error" : undefined} type={shown ? "text" : "password"} placeholder="Enter code word boss" autoComplete="current-password" />
         <button type="button" data-code-eye onClick={() => setShown(!shown)} aria-label={shown ? "Hide code word" : "Show code word"} aria-pressed={shown}>
           {shown ? (
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" /><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" /><path d="M14.12 14.12a3 3 0 1 1-4.24-4.24" /><line x1="1" y1="1" x2="23" y2="23" /></svg>
@@ -83,7 +99,8 @@ function CodeWordForm() {
           )}
         </button>
       </div>
-      <button type="submit" data-code-verify>Verify</button>
+      {error && <p id="code-word-error" role="alert" data-code-error>{error}</p>}
+      <button type="submit" data-code-verify disabled={busy}>{busy ? "Verifying…" : "Verify"}</button>
     </form>
   );
 }
