@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://frontend-teal-tau-18.vercel.app/";
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://silver-memory-production-6523.up.railway.app";
 const TOKEN_KEY = "sm_token";
 
 function readToken(): string | null {
