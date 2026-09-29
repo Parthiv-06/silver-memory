@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import GlyphPortal from "@/components/ui/glyph-portal";
+import PasskeyBox from "@/components/ui/passkey-box";
 import WorksWheel from "@/components/ui/works-wheel";
 
 const GREEN = "#1F5B43";
@@ -8,6 +10,8 @@ const DARK_GREEN = "#263F35";
 const MUTED = "#747B76";
 
 export default function Home() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
   return (
     <main className="min-h-screen bg-white">
       {/* =========================================================
@@ -99,27 +103,7 @@ export default function Home() {
                 letterSpacing: "0.005em",
               }}
             >
-              Symbiote: because apparently one personality wasn’t enough..
-            </p>
-
-            {/* =====================================================
-                SUPPORTING TEXT
-            ===================================================== */}
-            <p
-              style={{
-                position: "absolute",
-                top: "64%",
-                left: "24px",
-                right: "24px",
-                margin: 0,
-                textAlign: "center",
-                color: "#646B66",
-                fontSize: "clamp(15px, 1.4vw, 18px)",
-                fontWeight: 400,
-                lineHeight: 1.5,
-              }}
-            >
-            
+              Symbiote: because apparently one personality wasn&apos;t enough..
             </p>
 
             {/* =====================================================
@@ -145,115 +129,53 @@ export default function Home() {
         }
       >
         {/* =========================================================
-            CONTENT REVEALED AFTER PORTAL SCROLL
+            CONTENT REVEALED AFTER PORTAL SCROLL — passkey gate.
+            Nothing beyond this box exists until it's unlocked.
         ========================================================= */}
         <div
-          className="min-h-screen w-full"
+          className="min-h-screen w-full flex items-center justify-center"
           style={{
             background: "#FFFFFF",
             color: DARK_GREEN,
+            padding: "24px",
           }}
         >
-          <section className="mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-center px-6 py-24 md:px-12">
-            <p
-              className="mb-5 text-sm uppercase"
-              style={{
-                color: MUTED,
-                letterSpacing: "0.2em",
-              }}
-            >
-              Hello, I'm Parthzzz.
-            </p>
-
-            <h1
-              className="max-w-5xl"
-              style={{
-                color: DARK_GREEN,
-                fontSize: "clamp(42px, 7vw, 96px)",
-                fontWeight: 400,
-                lineHeight: 1.05,
-                letterSpacing: "-0.045em",
-              }}
-            >
-              I build things with code,
-              <br />
-              AI and curiosity.
-            </h1>
-
-            <p
-              className="mt-8 max-w-2xl"
-              style={{
-                color: "#68716B",
-                fontSize: "clamp(16px, 1.5vw, 20px)",
-                lineHeight: 1.7,
-              }}
-            >
-              Welcome to my portfolio. Explore my projects,
-              experiments and work across software, artificial
-              intelligence and engineering.
-            </p>
-
-            <div className="mt-10">
-              <a
-                href="#projects"
-                className="inline-flex items-center gap-7 rounded-[10px] px-6 py-3.5 transition-all duration-200"
-                style={{
-                  background: DARK_GREEN,
-                  color: "#FFFFFF",
-                  fontSize: "14px",
-                  fontWeight: 500,
-                  boxShadow: "0 2px 6px rgba(20,43,34,0.12)",
-                }}
-              >
-                View my work
-                <span
-                  aria-hidden="true"
-                  style={{
-                    fontSize: "18px",
-                    lineHeight: 1,
-                  }}
-                >
-                  ↘
-                </span>
-              </a>
-            </div>
-          </section>
+          <PasskeyBox onAuthenticated={() => setIsAuthenticated(true)} />
         </div>
       </GlyphPortal>
 
       {/* =========================================================
-          PROJECTS / WORKS WHEEL
+          PROJECTS / WORKS WHEEL — only exists once unlocked
       ========================================================= */}
-      <section
-        id="projects"
-        className="min-h-screen bg-black"
-      >
-        <WorksWheel
-          label="My Projects"
-          items={[
-            {
-              title: "CBM Platform",
-              image: "/images/cbm.jpg",
-              href: "#cbm-platform",
-            },
-            {
-              title: "AI Assistant",
-              image: "/images/ai-assistant.jpg",
-              href: "#ai-assistant",
-            },
-            {
-              title: "House Price Prediction",
-              image: "/images/house-price.jpg",
-              href: "#house-price",
-            },
-            {
-              title: "E-Commerce Platform",
-              image: "/images/ecommerce.jpg",
-              href: "#ecommerce",
-            },
-          ]}
-        />
-      </section>
+      {isAuthenticated && (
+        <section id="projects" className="min-h-screen bg-black">
+          <WorksWheel
+            label="My Projects"
+            items={[
+              {
+                title: "CBM Platform",
+                image: "/images/cbm.jpg",
+                href: "#cbm-platform",
+              },
+              {
+                title: "AI Assistant",
+                image: "/images/ai-assistant.jpg",
+                href: "#ai-assistant",
+              },
+              {
+                title: "House Price Prediction",
+                image: "/images/house-price.jpg",
+                href: "#house-price",
+              },
+              {
+                title: "E-Commerce Platform",
+                image: "/images/ecommerce.jpg",
+                href: "#ecommerce",
+              },
+            ]}
+          />
+        </section>
+      )}
     </main>
   );
 }
