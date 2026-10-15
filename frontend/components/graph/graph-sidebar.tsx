@@ -3,7 +3,7 @@
 import { memo, useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import type { GraphInsights } from "@/lib/graph/insights";
-import type { NormalizedGraph } from "@/lib/graph/normalize";
+import { countNotes, type NormalizedGraph } from "@/lib/graph/normalize";
 import type { GraphNode } from "@/lib/graph/types";
 import styles from "./graph-view.module.css";
 import type { GroupRow } from "./settings-panel";
@@ -108,6 +108,7 @@ function GroupList({
 /** Vault overview: housekeeping insights first, then every note grouped with its link count. */
 export const GraphSidebar = memo(function GraphSidebar({
   title,
+  header,
   graph,
   insights,
   groups,
@@ -117,6 +118,8 @@ export const GraphSidebar = memo(function GraphSidebar({
   onShowCluster,
 }: {
   title: string;
+  /** Rendered above the title, e.g. a back link. */
+  header?: ReactNode;
   graph: NormalizedGraph;
   insights: GraphInsights;
   groups: readonly GroupRow[];
@@ -138,14 +141,24 @@ export const GraphSidebar = memo(function GraphSidebar({
     for (const notes of map.values()) notes.sort((a, b) => degree(b) - degree(a) || a.label.localeCompare(b.label));
     return map;
   }, [graph]);
+  const counts = useMemo(() => {
+    const notes = countNotes(graph);
+    let placeholders = 0;
+    for (const node of graph.nodes) if (node.unresolved) placeholders++;
+    return { notes, unresolved: placeholders };
+  }, [graph]);
   const { duplicates, unresolved, clusters, orphans, hubs } = insights;
 
   return (
     <aside aria-label="Vault" className="flex w-[264px] shrink-0 flex-col border-r border-(--g-border) bg-(--g-chrome) max-md:hidden">
       <header className="px-4 pb-3 pt-4">
+        {header}
         <h2 className="truncate text-[13px] font-semibold text-(--g-text)">{title}</h2>
         <p className={cn(styles.mono, "mt-0.5 text-[12px] text-(--g-text-3)")}>
-          {graph.nodes.length} notes · {graph.links.length} links
+          {/* Same split as the source menu: placeholders for unresolved links aren't notes. */}
+          <span className="whitespace-nowrap">{counts.notes.toLocaleString("en-US")} notes · {graph.links.length.toLocaleString("en-US")} links</span>
+          {/* The space sits between the spans so "· N unresolved" wraps as a whole on a narrow sidebar. */}
+          {counts.unresolved > 0 && <> <span className="whitespace-nowrap">· {counts.unresolved.toLocaleString("en-US")} unresolved</span></>}
         </p>
       </header>
       <div className={cn(styles.scroll, "min-h-0 flex-1 overflow-y-auto pb-4")}>

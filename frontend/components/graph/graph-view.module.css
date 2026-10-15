@@ -116,8 +116,67 @@
 @media (prefers-reduced-motion: reduce) {
   .root *,
   .root *::before,
-  .root *::after {
+  .root *::after,
+  .dialog *,
+  .dialog *::before,
+  .dialog *::after {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+/* The import dialog sits in the top layer, outside .root, so it carries the same type settings. */
+@layer components {
+  .dialog {
+    font-family: var(--font-geist), Geist, ui-sans-serif, system-ui, sans-serif;
+    font-size: 13px;
+    line-height: 1.45;
+    color: var(--g-text);
+    color-scheme: dark;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--g-glass);
+    -webkit-backdrop-filter: blur(14px);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--g-border);
+    border-radius: 12px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+    padding: 0;
+    margin: auto;
+    width: min(680px, calc(100vw - 24px));
+    max-width: none;
+    max-height: min(780px, calc(100dvh - 24px));
+    overflow: hidden;
+  }
+
+  .dialog[open] {
+    display: flex;
+    flex-direction: column;
+    animation: dialog-in 160ms ease-out;
+  }
+
+  /* ::backdrop doesn't inherit custom properties everywhere, so the colours are literal. */
+  .dialog::backdrop {
+    background: rgba(9, 9, 11, 0.62);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+  }
+
+  .dropzone {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 14px 14px;
+  }
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.99);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dialog[open] {
+    animation: none;
   }
 }

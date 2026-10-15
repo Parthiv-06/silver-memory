@@ -1,8 +1,15 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL ?? "https://silver-memory-production-6523.up.railway.app";
+/** The backend's base URL (no trailing slash). */
+export const API_BASE_URL = (process.env.NEXT_PUBLIC_API_URL ?? "https://silver-memory-production-6523.up.railway.app").replace(/\/+$/, "");
 const TOKEN_KEY = "sm_token";
 
-function readToken(): string | null {
+/** The JWT stored by verifyCodeWord, or null (none yet, or storage is unavailable). */
+export function readToken(): string | null {
   try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
+}
+
+/** Forgets the stored JWT, e.g. after the backend answers 401. */
+export function clearToken(): void {
+  writeToken(null);
 }
 
 function writeToken(token: string | null) {
@@ -19,7 +26,7 @@ async function detail(res: Response) {
 
 /** Checks the code word against the backend's /auth/verify and stores the returned JWT. */
 export async function verifyCodeWord(passkey: string): Promise<void> {
-  const res = await fetch(`${BASE_URL}/auth/verify`, {
+  const res = await fetch(`${API_BASE_URL}/auth/verify`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ passkey }),
@@ -34,7 +41,7 @@ export async function hasValidSession(): Promise<boolean> {
   const token = readToken();
   if (!token) return false;
   try {
-    const res = await fetch(`${BASE_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
+    const res = await fetch(`${API_BASE_URL}/auth/me`, { headers: { Authorization: `Bearer ${token}` } });
     if (res.ok) return true;
     if (res.status === 401) writeToken(null);
   } catch { /* backend unreachable: keep the token, ask for the code word again */ }

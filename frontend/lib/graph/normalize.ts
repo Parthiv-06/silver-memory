@@ -136,6 +136,27 @@ export function normalizeGraph(data: GraphData, options: NormalizeOptions = {}):
   };
 }
 
+/** Counts the notes people wrote: unresolved placeholders and attachments don't count. */
+export function countNotes(data: { nodes: readonly GraphNode[] }): number {
+  let notes = 0;
+  for (const node of data.nodes) if (!node.unresolved && node.group !== "attachment") notes++;
+  return notes;
+}
+
+/**
+ * Whether `next` is a different graph altogether (another vault was loaded) rather than a filtered,
+ * local or edited view of `previous`: fewer than half the notes of the smaller one are shared.
+ */
+export function isDifferentGraph(previous: NormalizedGraph, next: NormalizedGraph): boolean {
+  if (previous === next) return false;
+  const smaller = Math.min(previous.nodes.length, next.nodes.length);
+  // To or from an empty view (a search with no match) is still the same vault.
+  if (smaller === 0) return false;
+  let shared = 0;
+  for (const node of next.nodes) if (previous.indexOf.has(node.id) && ++shared * 2 >= smaller) return false;
+  return true;
+}
+
 export interface DuplicatePair {
   a: string;
   b: string;

@@ -20,6 +20,12 @@ export interface MarkdownOptions {
    * Obsidian, which shows a bare [[Alias]] as unresolved (its autocomplete writes [[Note|Alias]]).
    */
   resolveAliases?: boolean;
+  /**
+   * Vault-relative paths of the vault's attachment files ("Assets/diagram.png"). With `attachments`,
+   * `![[diagram.png]]` then resolves to that file wherever it lives, as in Obsidian, so two spellings
+   * of one file make one node. Without it, attachments are keyed by the path as written.
+   */
+  attachmentPaths?: readonly string[];
 }
 
 interface ParsedNote {
@@ -42,6 +48,11 @@ const MD_LINK_TARGET = /\]\([^)\n]*\)/g;
 const SCHEME = /^[a-z][a-z0-9+.-]*:/i;
 // Files Obsidian opens as attachments; anything else ("Next.js", "Web 3.0") is a note name.
 const ATTACHMENT = /\.(png|jpe?g|gif|svg|webp|avif|bmp|ico|tiff?|heic|pdf|mp3|wav|m4a|ogg|oga|flac|3gp|mp4|webm|ogv|mov|mkv|canvas|base|excalidraw)$/i;
+
+/** Whether Obsidian treats `path` as an attachment (image, audio, video, PDF, canvas) rather than a note. */
+export function isAttachmentPath(path: string): boolean {
+  return ATTACHMENT.test(path);
+}
 
 function stripExtension(path: string): string {
   return path.replace(/\.md$/i, "");
@@ -131,6 +142,36 @@ function parseNote(note: MarkdownNote, options: MarkdownOptions): ParsedNote {
 }
 
 /**
+ * Finds the file a link points at the way Obsidian does. Markdown links may be relative
+ * ("../Infra/Caching.md"), vault-absolute ("Infra/Caching.md") or shortest-path ("Caching.md"),
+ * tried in that order; a bare name matches anywhere, same folder first, then the shortest path.
+ * `byPath` and `byName` are keyed by lowercased path (as `key` leaves it) and file name.
+ */
+function lookup(
+  text: string,
+  dir: string,
+  relative: boolean,
+  byPath: ReadonlyMap<string, string>,
+  byName: ReadonlyMap<string, readonly string[]>,
+  key: (path: string) => string,
+): string | undefined {
+  if (relative) {
+    const exact = byPath.get(key(joinPath(dir, text)).toLowerCase());
+    if (exact || /^\.\.?\//.test(text)) return exact;
+  }
+  const wanted = key(text.replace(/^\//, "")).toLowerCase();
+  const exact = byPath.get(wanted);
+  if (exact) return exact;
+  if (wanted.includes("/")) {
+    for (const [path, id] of byPath) if (path.endsWith(`/${wanted}`)) return id;
+    return undefined;
+  }
+  const candidates = byName.get(wanted);
+  if (!candidates?.length) return undefined;
+  return candidates.find((id) => dirname(id) === dir) ?? [...candidates].sort((a, b) => a.length - b.length)[0];
+}
+
+/**
  * Builds a graph from markdown notes the way Obsidian does: [[Note]], [[Note|alias]], [[Note#heading]],
  * ![[embeds]], links in frontmatter properties, and [text](Note.md) links (relative, vault-absolute or
  * shortest-path). Unmatched targets become unresolved nodes.
@@ -149,26 +190,23 @@ export function fromMarkdownNotes(notes: readonly MarkdownNote[], options: Markd
   }
 
   const findNote = (text: string, from: ParsedNote, relative: boolean): string | undefined => {
-    if (relative) {
-      // Markdown links may be relative ("../Infra/Caching.md"), vault-absolute ("Infra/Caching.md")
-      // or shortest-path ("Caching.md"); Obsidian tries them in that order.
-      const exact = byPath.get(stripExtension(joinPath(from.dir, text)).toLowerCase());
-      if (exact || /^\.\.?\//.test(text)) return exact;
-    }
-    const wanted = stripExtension(text.replace(/^\//, "")).toLowerCase();
-    const exact = byPath.get(wanted);
-    if (exact) return exact;
-    if (wanted.includes("/")) {
-      for (const [path, id] of byPath) if (path.endsWith(`/${wanted}`)) return id;
-      return undefined;
-    }
-    const candidates = byName.get(wanted);
-    if (candidates?.length) {
-      // Obsidian prefers a note in the same folder, then the shortest path.
-      return candidates.find((id) => dirname(id) === from.dir) ?? [...candidates].sort((a, b) => a.length - b.length)[0];
-    }
-    return options.resolveAliases ? byAlias.get(wanted) : undefined;
+    const found = lookup(text, from.dir, relative, byPath, byName, stripExtension);
+    if (found || !options.resolveAliases) return found;
+    const alias = stripExtension(text.replace(/^\//, "")).toLowerCase();
+    return alias.includes("/") ? undefined : byAlias.get(alias);
   };
+
+  const filesByPath = new Map<string, string>();
+  const filesByName = new Map<string, string[]>();
+  for (const raw of options.attachments ? options.attachmentPaths ?? [] : []) {
+    const path = raw.replace(/\\/g, "/").replace(/^\.?\//, "");
+    const lower = path.toLowerCase();
+    if (filesByPath.has(lower)) continue;
+    filesByPath.set(lower, path);
+    const name = basename(lower);
+    filesByName.set(name, [...(filesByName.get(name) ?? []), path]);
+  }
+  const asIs = (path: string) => path;
 
   const nodes: GraphNode[] = parsed.map((note, i) => ({
     id: note.id,
@@ -187,8 +225,9 @@ export function fromMarkdownNotes(notes: readonly MarkdownNote[], options: Markd
         const written = target.text.replace(/^\//, "");
         if (ATTACHMENT.test(written)) {
           if (!options.attachments) continue;
-          id = target.relative ? joinPath(note.dir, target.text) : written;
-          if (!extra.has(id)) extra.set(id, { id, label: basename(id), group: "attachment" });
+          const file = lookup(target.text, note.dir, target.relative, filesByPath, filesByName, asIs);
+          id = file ?? (target.relative ? joinPath(note.dir, target.text) : written);
+          if (!extra.has(id)) extra.set(id, { id, label: basename(id), group: "attachment", ...(file && { meta: { path: file } }) });
         } else {
           // Unresolved notes are keyed by what was written, unless the link is explicitly relative.
           id = stripExtension(target.relative && /^\.\.?\//.test(target.text) ? joinPath(note.dir, target.text) : written);

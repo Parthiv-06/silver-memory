@@ -44,7 +44,31 @@ export function SectionPage({ slug }: { slug: string }) {
           <span aria-hidden="true" className="h-1.5 w-16 rounded-full" style={{ background: section.color, boxShadow: `inset 0 0 0 1px ${section.foil}` }} />
           <h1 className="font-serif text-5xl font-normal tracking-[-0.055em] md:text-7xl">{section.title}</h1>
           <p className="max-w-md text-base text-[#b9b4ae]">{section.note}</p>
-          <p className="mt-6 max-w-md border-t border-white/10 pt-6 text-sm text-[#b9b4ae]">Nothing here yet.</p>
+          {section.slug === "notes" ? (
+            <div className="mt-6 max-w-md border-t border-white/10 pt-6">
+              <Link
+                href="/graph"
+                className="group inline-flex min-h-11 items-center gap-2 text-xs uppercase tracking-[0.14em] text-[#f4eee6] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#c87046]"
+              >
+                Open knowledge graph
+                <svg
+                  viewBox="0 0 16 16"
+                  width="14"
+                  height="14"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  aria-hidden="true"
+                  className="transition-transform duration-150 group-hover:translate-x-0.5 motion-reduce:transition-none"
+                >
+                  <path d="M3 8h9.5M8.5 3.5 13 8l-4.5 4.5" />
+                </svg>
+              </Link>
+              <p className="mt-1 text-sm text-[#b9b4ae]">See how your notes link together, or connect your own Obsidian vault.</p>
+            </div>
+          ) : (
+            <p className="mt-6 max-w-md border-t border-white/10 pt-6 text-sm text-[#b9b4ae]">Nothing here yet.</p>
+          )}
         </section>
       </div>
     </main>

@@ -11,12 +11,13 @@ import {
   useState,
   useSyncExternalStore,
   type CSSProperties,
+  type ReactNode,
 } from "react";
 import { cn } from "@/lib/utils";
 import type { Insets } from "@/lib/graph/camera";
 import { filterGraph } from "@/lib/graph/filter";
 import { computeInsights, type GraphInsights } from "@/lib/graph/insights";
-import { normalizeGraph, type NormalizedGraph } from "@/lib/graph/normalize";
+import { isDifferentGraph, normalizeGraph, type NormalizedGraph } from "@/lib/graph/normalize";
 import { THEME_VARS, UNGROUPED, UNRESOLVED_GROUP, groupColors, groupLabel } from "@/lib/graph/theme";
 import { resolveSettings, type FilterSettings, type GraphData, type GraphSettings, type PartialSettings } from "@/lib/graph/types";
 import { CommandSearch, type SearchItem } from "./command-search";
@@ -37,6 +38,10 @@ export interface GraphViewProps {
   showSidebar?: boolean;
   /** Heading shown at the top of the sidebar. */
   title?: string;
+  /** Shown above the title in the sidebar header, e.g. a back link. */
+  sidebarHeader?: ReactNode;
+  /** Extra controls in the top bar, before the settings button (e.g. import or save actions). */
+  toolbar?: ReactNode;
   className?: string;
 }
 
@@ -143,7 +148,8 @@ function PerfChip({ stats, notes, links, total }: { stats: Store<GraphStats | nu
     >
       <span aria-hidden="true" className={cn("size-1.5 shrink-0 rounded-full", value?.simulating ? cn("bg-(--g-accent)", styles.pulse) : "bg-(--g-text-3)")} />
       <span>
-        {notes === total ? notes : `${notes}/${total}`} notes<span className="max-sm:hidden"> · {links} links</span> · {rate}
+        {/* "nodes": this counts what is drawn, unresolved placeholders included (the sidebar counts notes). */}
+        {notes === total ? notes : `${notes}/${total}`} nodes<span className="max-sm:hidden"> · {links} links</span> · {rate}
       </span>
     </div>
   );
@@ -159,6 +165,8 @@ export function GraphView({
   initialSettings,
   showSidebar = true,
   title = "Knowledge graph",
+  sidebarHeader,
+  toolbar,
   className,
 }: GraphViewProps) {
   const rootRef = useRef<HTMLDivElement>(null);
@@ -211,11 +219,29 @@ export function GraphView({
   const viewportHeight = useSyncExternalStore(subscribeResize, () => window.innerHeight, () => 800);
   const showSettings = settingsOpen ?? roomy;
 
+  // A different vault (not a filtered or edited version of this one) starts afresh: no stale
+  // selection, local graph, name filter or hidden groups. Adjusted during render, so the new graph's
+  // first frame already uses them.
+  const [shownGraph, setShownGraph] = useState(graph);
+  // Bumped for each different vault, so the camera frames it once it renders (see below).
+  const [vaultVersion, setVaultVersion] = useState(0);
+  if (shownGraph !== graph) {
+    setShownGraph(graph);
+    if (isDifferentGraph(shownGraph, graph)) {
+      setSelectedId(initialSelectedId !== undefined && graph.indexOf.has(initialSelectedId) ? initialSelectedId : null);
+      setLocal((current) => ({ ...current, on: false }));
+      setSettings((current) => ({ ...current, filters: { ...current.filters, search: "" }, groups: { ...current.groups, hidden: [] } }));
+      setVaultVersion((n) => n + 1);
+    }
+  }
+
   const selectedIndex = selectedId == null ? undefined : graph.indexOf.get(selectedId);
   const selected = selectedIndex === undefined ? null : graph.nodes[selectedIndex];
   const { filters, groups: groupSettings, display, forces } = settings;
   // Typing in the name filter stays responsive on big vaults: the graph catches up a beat later.
-  const search = useDeferredValue(filters.search);
+  // Clearing it applies at once, so a new vault's first frame isn't filtered by the old query.
+  const deferredSearch = useDeferredValue(filters.search);
+  const search = filters.search === "" ? "" : deferredSearch;
   const appliedFilters = useMemo<FilterSettings>(
     () => ({ search, showOrphans: filters.showOrphans, showUnresolved: filters.showUnresolved }),
     [search, filters.showOrphans, filters.showUnresolved],
@@ -280,6 +306,15 @@ export function GraphView({
     }
   }, [cameraRequest, selectedId, insets, visibleIds]);
 
+  // A different vault is framed once it renders. The engine also notices on its own, but it compares
+  // filtered views, and after a filter that matched nothing the previous view was empty.
+  const lastVaultVersion = useRef(vaultVersion);
+  useEffect(() => {
+    if (lastVaultVersion.current === vaultVersion) return;
+    lastVaultVersion.current = vaultVersion;
+    canvasRef.current?.fitToView({ follow: true });
+  }, [vaultVersion]);
+
   // Entering, leaving or re-centring the local graph reframes the camera.
   const localKey = localView ? `${localView.focusId}:${localView.depth}` : "";
   const lastLocalKey = useRef(localKey);
@@ -338,6 +373,7 @@ export function GraphView({
       {showSidebar && sidebarOpen && (
         <GraphSidebar
           title={title}
+          header={sidebarHeader}
           graph={graph}
           insights={insights}
           groups={groups}
@@ -370,7 +406,8 @@ export function GraphView({
               <IconButton icon="sidebar" label={sidebarOpen ? "Hide sidebar" : "Show sidebar"} pressed={sidebarOpen} onClick={() => setSidebarOpen(!sidebarOpen)} />
             </div>
           )}
-          <div className="pointer-events-auto mx-auto w-full max-w-[420px]">
+          {/* min-w-0: on a phone the search gives way to the toolbar instead of pushing it off-screen. */}
+          <div className="pointer-events-auto mx-auto w-full min-w-0 max-w-[420px]">
             <CommandSearch
               items={searchItems}
               onPick={pick}
@@ -379,6 +416,7 @@ export function GraphView({
               inputRef={searchRef}
             />
           </div>
+          {toolbar && <div className="pointer-events-auto flex shrink-0 items-center gap-2">{toolbar}</div>}
           <div className={cn(styles.glass, "pointer-events-auto rounded-[8px] p-0.5")}>
             <IconButton
               ref={settingsToggleRef}

@@ -25,9 +25,12 @@ This matters because Railway, by default, builds from the **repo root**. Since
 step, the build will fail because Railway won't find `requirements.txt` at
 the root.
 
-Also understand what this service *is*: a single small API with one table
-(one row, really) that checks a passkey and issues a JWT. It does **not**
-need a beefy plan — Railway's free/hobby tier is enough.
+Also understand what this service *is*: a single small API with two
+one-row tables — it checks a passkey, issues a JWT, and stores the saved
+knowledge graph (up to ~15 MB of JSON). It doesn't need a beefy plan, but
+give it **at least 1 GB of memory**: idle it uses ~80 MB, yet saving a large
+graph briefly peaks at 300–450 MB (a 50,000-node / 250,000-link graph, or a
+15 MB upload dense with `meta`), and a 0.5 GB instance is tight for that.
 
 ---
 
@@ -72,10 +75,12 @@ just pushing a new commit), the container is rebuilt from scratch and any
 file written to disk — including a SQLite `.db` file — is wiped. That means
 if you leave `DATABASE_URL` unset (SQLite default), **you will need to
 re-run `seed.py` after every redeploy**, and any local file-based state is
-lost on each deploy. For a one-row passkey table this is mildly annoying but
-survivable. If you'd rather not think about it again, attach Railway's
-Postgres plugin (Step 5) — it's free on the trial/hobby tier and persists
-independently of your app's deploys.
+lost on each deploy — **including the knowledge graph saved via
+`PUT /graph`**, which would have to be re-uploaded from the frontend. For a
+one-row passkey table this is mildly annoying but survivable; for the graph
+it's a real reason to attach Railway's Postgres plugin (Step 5) — it's free
+on the trial/hobby tier and persists independently of your app's deploys.
+The new `graph_snapshots` table is created automatically on startup.
 
 ---
 

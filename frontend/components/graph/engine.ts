@@ -13,7 +13,7 @@ import {
   type Camera,
   type Insets,
 } from "@/lib/graph/camera";
-import type { NormalizedGraph } from "@/lib/graph/normalize";
+import { isDifferentGraph, type NormalizedGraph } from "@/lib/graph/normalize";
 import { seedPositions, toForceParams, type SimFrame } from "@/lib/graph/simulation";
 import { SimulationHost } from "@/lib/graph/simulation-host";
 import { SpatialGrid } from "@/lib/graph/spatial-grid";
@@ -302,6 +302,11 @@ export class GraphEngine {
         this.host.stop();
       }
       if (!previous && this.width > 0) this.cam = this.fitTarget();
+      else if (previous && isDifferentGraph(previous, graph)) {
+        // Another vault was loaded: drop the old camera move and glide to frame the new layout.
+        this.stopMotion();
+        this.follow = true;
+      }
     } else {
       this.refreshAttributes();
     }

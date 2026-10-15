@@ -32,6 +32,16 @@ const PATHS = {
   outgoing: <path d="M5 12h14M13 6l6 6-6 6" />,
   backlink: <path d="M19 12H5M11 6l-6 6 6 6" />,
   note: <><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z" /><path d="M14 3v5h5" /></>,
+  upload: <><path d="M12 15V4M7.5 8.5 12 4l4.5 4.5" /><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3" /></>,
+  cloud: <><path d="M7 18a4.5 4.5 0 0 1-.6-8.96A6 6 0 0 1 18 8.5a4 4 0 0 1-.5 9.5z" /><path d="M12 15v-5M9.5 12.5 12 10l2.5 2.5" /></>,
+  more: <><circle cx="5.5" cy="12" r="1" /><circle cx="12" cy="12" r="1" /><circle cx="18.5" cy="12" r="1" /></>,
+  folder: <path d="M3 7a2 2 0 0 1 2-2h4l2 2.5h8a2 2 0 0 1 2 2V17a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+  braces: <path d="M8 4H7a2 2 0 0 0-2 2v3.5L3.5 12 5 14.5V18a2 2 0 0 0 2 2h1M16 4h1a2 2 0 0 1 2 2v3.5l1.5 2.5-1.5 2.5V18a2 2 0 0 1-2 2h-1" />,
+  table: <><rect x="3.5" y="4.5" width="17" height="15" rx="2" /><path d="M3.5 9.5h17M3.5 14.5h17M10 9.5v10" /></>,
+  link: <path d="M10 14a4 4 0 0 0 5.66 0l3-3a4 4 0 0 0-5.66-5.66l-1 1M14 10a4 4 0 0 0-5.66 0l-3 3a4 4 0 0 0 5.66 5.66l1-1" />,
+  check: <path d="m5 12.5 4.5 4.5L19 7.5" />,
+  alert: <><path d="M12 4 2.8 19.5h18.4z" /><path d="M12 10v4M12 17v.01" /></>,
+  trash: <path d="M4.5 7h15M9.5 7V4.5h5V7M6.5 7l1 12.5h9l1-12.5M10.5 11v5M13.5 11v5" />,
 } as const;
 
 export type IconName = keyof typeof PATHS;
@@ -110,17 +120,43 @@ export function Kbd({ children }: { children: ReactNode }) {
   );
 }
 
-export function Switch({ label, checked, onChange }: { label: ReactNode; checked: boolean; onChange: (checked: boolean) => void }) {
+export function Switch({
+  label,
+  description,
+  checked,
+  disabled,
+  onChange,
+}: {
+  label: ReactNode;
+  /** A line of help under the label, read out with the switch. */
+  description?: ReactNode;
+  checked: boolean;
+  disabled?: boolean;
+  onChange: (checked: boolean) => void;
+}) {
+  const id = useId();
   return (
-    <label className="flex min-h-8 cursor-pointer items-center justify-between gap-3 text-[13px] text-(--g-text)">
-      <span>{label}</span>
+    <label className={cn("flex min-h-8 items-center justify-between gap-3 text-[13px] text-(--g-text)", disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer")}>
+      {description ? (
+        <span className="min-w-0 py-1">
+          <span id={`${id}-label`} className="block">{label}</span>
+          <span id={`${id}-description`} className="mt-0.5 block text-[12px] text-(--g-text-3)">{description}</span>
+        </span>
+      ) : (
+        <span>{label}</span>
+      )}
       <button
         type="button"
         role="switch"
         aria-checked={checked}
+        // The wrapping <label> would name the switch with the description too; name it with the
+        // label alone and read the description once, as its description.
+        aria-labelledby={description ? `${id}-label` : undefined}
+        aria-describedby={description ? `${id}-description` : undefined}
+        disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          "relative h-[18px] w-[30px] shrink-0 rounded-full transition-colors duration-150",
+          "relative h-[18px] w-[30px] shrink-0 rounded-full transition-colors duration-150 disabled:cursor-not-allowed",
           checked ? "bg-(--g-accent)" : "bg-(--g-border)",
           focusRing,
         )}

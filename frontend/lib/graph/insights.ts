@@ -11,10 +11,13 @@ export interface GraphInsights {
   hubs: { node: GraphNode; degree: number }[];
 }
 
-/** Housekeeping hints about a vault: likely duplicates, dangling links, islands and hubs. */
-export function computeInsights(graph: NormalizedGraph, hubCount = 5): GraphInsights {
+/**
+ * Housekeeping hints about a vault: likely duplicates, dangling links, islands and hubs. Duplicate
+ * detection is the slow part on big vaults; `duplicates: false` skips it (an empty list).
+ */
+export function computeInsights(graph: NormalizedGraph, hubCount = 5, { duplicates: findDuplicates = true }: { duplicates?: boolean } = {}): GraphInsights {
   const { nodes, indexOf, degree } = graph;
-  const duplicates = findLikelyDuplicates(nodes).map(({ a, b, distance }) => {
+  const duplicates = (findDuplicates ? findLikelyDuplicates(nodes) : []).map(({ a, b, distance }) => {
     const i = indexOf.get(a)!, j = indexOf.get(b)!;
     return degree[i] <= degree[j] ? { a: nodes[i], b: nodes[j], distance } : { a: nodes[j], b: nodes[i], distance };
   });
